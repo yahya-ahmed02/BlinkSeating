@@ -15,7 +15,7 @@
         <TextBlock Text="e.g. 3,4,2,1,7,4,9,2,5,7" FontStyle="Italic" Foreground="Gray" FontSize="11" Margin="0,0,0,2"/>
         <TextBox x:Name="OtherSizesBox" Height="26" Margin="0,0,0,12"/>
 
-        <TextBlock Text="Rows are treated front-to-back in the order they appear in the zone (ROW1 = front). Manually-seated seats are never overwritten."
+        <TextBlock Text="Rows are treated front-to-back in the order they appear in the zone (ROW1 = front). Running this again ADDS new families to whoever's already seated - it won't clear or redo previous auto-seating. Use the zone's 'Clear' button first for a fresh start."
                    TextWrapping="Wrap" FontSize="11" Foreground="DimGray" Margin="0,0,0,12"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

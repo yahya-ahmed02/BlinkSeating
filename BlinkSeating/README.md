@@ -9,6 +9,7 @@ A WPF desktop app for designing a custom venue seating layout and assigning gues
 - Delete a whole row with "-Row" (asks for confirmation if it has seated guests)
 - Click any seat to open a dialog: assign a guest name, set status (Available / Reserved / Maybe / Blind), add notes, **Clear Seat** (unassign but keep the seat), or **Delete Seat** (remove the seat entirely)
 - "Clear" on a section's header bulk-unseats everyone in that section without touching the seats/rows themselves
+- Each row can be dragged left or right independently (grab any empty space on the row, not just a button) within its section, so you can stagger rows to match a real venue shape
 - Seated groups (families placed by auto-seat, or manually-seated seats sharing an identical guest name) are drawn with a thin border around the whole block, so you can see family boundaries at a glance
 - Seats color-code automatically: red = empty, green = manually seated, steel blue = auto-seated, orange = reserved, gray = maybe, black = blind/damaged
 - Save the whole layout to a `.json` file, load it back later
@@ -31,6 +32,11 @@ Then it seats them automatically:
   fills whatever space is available, front-to-back, until fully seated
 - Seats you assigned by hand (via the seat dialog) are never touched or overwritten by
   auto-seat, even if you run it again
+- **Running Auto-Seat again on the same zone is additive** - it does NOT clear or redo anyone
+  already seated (manually or by a previous auto-seat run). It only seats the new family sizes
+  you enter, into whatever's still free, and its label numbering (Top N / Guest N) continues on
+  from what's already there so it won't collide with earlier labels. If you actually want a
+  clean slate, hit **Clear** on the zone first, then run Auto-Seat.
 - Auto-seated guests show up **steel blue**; hand-seated guests show up **green** - so you can
   tell at a glance which is which
 - If the zone runs out of room, you'll get a summary telling you exactly how many people from

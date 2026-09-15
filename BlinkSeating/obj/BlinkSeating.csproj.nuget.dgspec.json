@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\BlinkSeating (1)\\BlinkSeating\\BlinkSeating.csproj": {}
+    "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj": {}
   },
   "projects": {
-    "E:\\BlinkSeating (1)\\BlinkSeating\\BlinkSeating.csproj": {
+    "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\BlinkSeating (1)\\BlinkSeating\\BlinkSeating.csproj",
+        "projectUniqueName": "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj",
         "projectName": "BlinkSeating",
-        "projectPath": "E:\\BlinkSeating (1)\\BlinkSeating\\BlinkSeating.csproj",
+        "projectPath": "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj",
         "packagesPath": "C:\\Users\\yahya\\.nuget\\packages\\",
-        "outputPath": "E:\\BlinkSeating (1)\\BlinkSeating\\obj\\",
+        "outputPath": "E:\\BlinkSeating (5)\\BlinkSeating\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\yahya\\AppData\\Roaming\\NuGet\\NuGet.Config"

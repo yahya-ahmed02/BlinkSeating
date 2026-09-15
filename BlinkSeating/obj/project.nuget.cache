@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RezTxCIgOEM=",
+  "dgSpecHash": "EQ7l1+LHT+Y=",
   "success": true,
-  "projectFilePath": "E:\\BlinkSeating (1)\\BlinkSeating\\BlinkSeating.csproj",
+  "projectFilePath": "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\yahya\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.29\\microsoft.netcore.app.ref.8.0.29.nupkg.sha512",
     "C:\\Users\\yahya\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.29\\microsoft.windowsdesktop.app.ref.8.0.29.nupkg.sha512",

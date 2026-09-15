@@ -4,6 +4,8 @@ public class SeatRow
 {
     public string Name { get; set; } = "ROW1";
     public List<Seat> Seats { get; set; } = new();
+    public double OffsetX { get; set; } = 0; // manual left/right nudge, set by dragging the row
+    public double OffsetY { get; set; } = 0; // manual up/down nudge, set by dragging the row
 
     /// <summary>Resets seat numbers to 1..N based on current left-to-right order.
     /// Call this after any seat is added or removed so numbering never has gaps.</summary>
