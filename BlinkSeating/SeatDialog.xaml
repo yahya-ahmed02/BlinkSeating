@@ -11,10 +11,11 @@
 
         <TextBlock Text="Status:"/>
         <ComboBox x:Name="StatusBox" Height="26" Margin="0,2,0,10">
-            <ComboBoxItem Content="Available"/>
+            <ComboBoxItem Content="None (regular seat)"/>
             <ComboBoxItem Content="Reserved"/>
-            <ComboBoxItem Content="Maybe"/>
             <ComboBoxItem Content="Blind"/>
+            <ComboBoxItem Content="Maybe"/>
+            <ComboBoxItem Content="Damaged"/>
         </ComboBox>
 
         <TextBlock Text="Notes:"/>

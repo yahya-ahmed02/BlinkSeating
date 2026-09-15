@@ -10,6 +10,7 @@ public partial class MainWindow : Window
 {
     private VenueLayout _layout = new();
     private string? _currentFilePath;
+    private bool _guestView;
 
     public MainWindow()
     {
@@ -17,23 +18,41 @@ public partial class MainWindow : Window
         RebuildCanvas();
     }
 
+    private void GuestView_Click(object sender, RoutedEventArgs e)
+    {
+        _guestView = !_guestView;
+        GuestViewButton.Content = _guestView ? "Exit Guest View" : "Guest View";
+        EditToolbar.Visibility = _guestView ? Visibility.Collapsed : Visibility.Visible;
+
+        foreach (var child in MainCanvas.Children)
+        {
+            if (child is SectionControl control)
+            {
+                control.IsGuestView = _guestView;
+                control.Render();
+            }
+        }
+        UpdateCanvasSize();
+    }
+
     private void AddSection_Click(object sender, RoutedEventArgs e)
     {
-        var name = InputDialog.Show(this, "Section name:", "New Section", "SECTION");
-        if (string.IsNullOrWhiteSpace(name)) return;
+        var dlg = new NewSectionDialog { Owner = this };
+        if (dlg.ShowDialog() != true) return;
 
         var section = new Section
         {
-            Name = name,
+            Name = dlg.SectionName,
             X = 40 + (_layout.Sections.Count % 4) * 260,
             Y = 40 + (_layout.Sections.Count / 4) * 300
         };
-        // start with one row of 10 seats so it's not empty
-        section.Rows.Add(new SeatRow
+
+        for (int r = 1; r <= dlg.RowCount; r++)
         {
-            Name = "ROW1",
-            Seats = Enumerable.Range(1, 10).Select(n => new Seat { Row = "ROW1", Number = n }).ToList()
-        });
+            var row = new SeatRow { Name = $"ROW{r}" };
+            row.Seats = Enumerable.Range(1, dlg.SeatsPerRow).Select(n => new Seat { Row = row.Name, Number = n }).ToList();
+            section.Rows.Add(row);
+        }
 
         _layout.Sections.Add(section);
         AddSectionControl(section);
@@ -42,15 +61,43 @@ public partial class MainWindow : Window
 
     private void AddSectionControl(Section section)
     {
-        var control = new SectionControl(section);
+        var control = new SectionControl(section) { IsGuestView = _guestView };
         Canvas.SetLeft(control, section.X);
         Canvas.SetTop(control, section.Y);
 
         control.SeatClicked += OnSeatClicked;
         control.SectionDeleted += OnSectionDeleted;
         control.LayoutChanged += UpdateStatus;
+        control.LayoutChanged += UpdateCanvasSize;
 
         MainCanvas.Children.Add(control);
+        UpdateCanvasSize();
+    }
+
+    /// <summary>Grows (or shrinks back toward) the main canvas to fit however far sections
+    /// currently extend, so the scrollbars always reach exactly as far as the content does -
+    /// dragging or expanding a section past the current edge gives you more room to scroll to.</summary>
+    private void UpdateCanvasSize()
+    {
+        MainCanvas.UpdateLayout(); // make sure children's ActualWidth/ActualHeight are current
+
+        double maxRight = 0, maxBottom = 0;
+        foreach (var child in MainCanvas.Children)
+        {
+            if (child is not FrameworkElement fe) continue;
+            double left = Canvas.GetLeft(fe);
+            double top = Canvas.GetTop(fe);
+            if (double.IsNaN(left)) left = 0;
+            if (double.IsNaN(top)) top = 0;
+            maxRight = Math.Max(maxRight, left + fe.ActualWidth);
+            maxBottom = Math.Max(maxBottom, top + fe.ActualHeight);
+        }
+
+        const double padding = 150;
+        const double minWidth = 2400;
+        const double minHeight = 1600;
+        MainCanvas.Width = Math.Max(minWidth, maxRight + padding);
+        MainCanvas.Height = Math.Max(minHeight, maxBottom + padding);
     }
 
     private void OnSeatClicked(Seat seat, Section section)
@@ -96,8 +143,9 @@ public partial class MainWindow : Window
         int reserved = allSeats.Count(s => s.Status == SeatStatus.Reserved);
         int maybe = allSeats.Count(s => s.Status == SeatStatus.Maybe);
         int blind = allSeats.Count(s => s.Status == SeatStatus.Blind);
+        int damaged = allSeats.Count(s => s.Status == SeatStatus.Damaged);
 
-        StatusText.Text = $"Total: {total}   Assigned: {assigned}   Available: {available}   Reserved: {reserved}   Maybe: {maybe}   Blind/Damaged: {blind}";
+        StatusText.Text = $"Total: {total}   Assigned: {assigned}   Available: {available}   Reserved: {reserved}   Maybe: {maybe}   Blind: {blind}   Damaged: {damaged}";
     }
 
     private void AutoSeat_Click(object sender, RoutedEventArgs e)

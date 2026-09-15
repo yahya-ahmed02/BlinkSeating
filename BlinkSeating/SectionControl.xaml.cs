@@ -10,6 +10,11 @@ public partial class SectionControl : UserControl
 {
     public Section Section { get; }
 
+    /// <summary>When true, hides every editing control (+/-/-Row, +Row/Clear/Rename, X),
+    /// disables dragging, and makes clicking a seat a no-op - a clean read-only view of the
+    /// layout to show guests. Hover tooltips on seats still work.</summary>
+    public bool IsGuestView { get; set; }
+
     public event Action<Seat, Section>? SeatClicked;
     public event Action<Section>? SectionDeleted;
     public event Action? LayoutChanged;
@@ -28,6 +33,9 @@ public partial class SectionControl : UserControl
     public void Render()
     {
         SectionTitle.Text = Section.Name;
+        HeaderButtonsPanel.Visibility = IsGuestView ? Visibility.Collapsed : Visibility.Visible;
+        DeleteButton.Visibility = IsGuestView ? Visibility.Collapsed : Visibility.Visible;
+        HeaderBorder.Cursor = IsGuestView ? Cursors.Arrow : Cursors.SizeAll;
         RowsHost.Children.Clear();
 
         // Rendered bottom-to-top: ROW1 (the front row) sits at the bottom of the stack by
@@ -43,7 +51,12 @@ public partial class SectionControl : UserControl
         foreach (var row in displayRows)
         {
             var rowPanel = BuildRowPanel(row);
-            var rowBorder = new Border { Child = rowPanel, Background = Brushes.Transparent, Cursor = Cursors.SizeWE };
+            var rowBorder = new Border
+            {
+                Child = rowPanel,
+                Background = Brushes.Transparent,
+                Cursor = IsGuestView ? Cursors.Arrow : Cursors.SizeWE
+            };
             rowBorder.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             built.Add((rowBorder, row, rowBorder.DesiredSize.Width, rowBorder.DesiredSize.Height));
         }
@@ -59,7 +72,7 @@ public partial class SectionControl : UserControl
             Canvas.SetTop(rowBorder, top);
             RowsHost.Children.Add(rowBorder);
 
-            AttachRowDrag(rowBorder, row);
+            if (!IsGuestView) AttachRowDrag(rowBorder, row);
 
             maxRight = Math.Max(maxRight, left + width);
             cumulativeY += height + gap;
@@ -123,7 +136,8 @@ public partial class SectionControl : UserControl
         };
     }
 
-    /// <summary>Builds one row's visual content: the row label, +/-/-Row controls, then the seats.</summary>
+    /// <summary>Builds one row's visual content: the row label, then (unless in guest view)
+    /// the +/-/-Row controls, then the seats.</summary>
     private StackPanel BuildRowPanel(SeatRow row)
     {
         var rowPanel = new StackPanel { Orientation = Orientation.Horizontal };
@@ -138,73 +152,76 @@ public partial class SectionControl : UserControl
         };
         rowPanel.Children.Add(rowLabel);
 
-        var addSeatBtn = new Button
+        if (!IsGuestView)
         {
-            Content = "+",
-            Width = 18,
-            Height = 18,
-            Margin = new Thickness(0, 0, 2, 0),
-            FontSize = 9,
-            Tag = row
-        };
-        addSeatBtn.Click += (_, _) =>
-        {
-            row.Seats.Add(new Seat { Row = row.Name });
-            row.RenumberSeats();
-            Render();
-            LayoutChanged?.Invoke();
-        };
-        rowPanel.Children.Add(addSeatBtn);
-
-        var removeSeatBtn = new Button
-        {
-            Content = "-",
-            Width = 18,
-            Height = 18,
-            Margin = new Thickness(0, 0, 2, 0),
-            FontSize = 9
-        };
-        removeSeatBtn.Click += (_, _) =>
-        {
-            if (row.Seats.Count == 0) return;
-            var last = row.Seats[^1];
-            if (last.IsAssigned)
+            var addSeatBtn = new Button
             {
-                var res = MessageBox.Show(
-                    $"Seat {last.Number} in {row.Name} has {last.GuestName} assigned. Remove it anyway?",
-                    "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (res != MessageBoxResult.Yes) return;
-            }
-            row.Seats.RemoveAt(row.Seats.Count - 1);
-            row.RenumberSeats();
-            Render();
-            LayoutChanged?.Invoke();
-        };
-        rowPanel.Children.Add(removeSeatBtn);
-
-        var delRowBtn = new Button
-        {
-            Content = "-Row",
-            Width = 34,
-            Height = 18,
-            Margin = new Thickness(0, 0, 8, 0),
-            FontSize = 9
-        };
-        delRowBtn.Click += (_, _) =>
-        {
-            int assignedCount = row.Seats.Count(s => s.IsAssigned);
-            string msg = assignedCount > 0
-                ? $"Delete {row.Name}? It has {assignedCount} seated guest(s) - they'll be removed too."
-                : $"Delete {row.Name}?";
-            var res = MessageBox.Show(msg, "Confirm Delete Row", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (res == MessageBoxResult.Yes)
+                Content = "+",
+                Width = 18,
+                Height = 18,
+                Margin = new Thickness(0, 0, 2, 0),
+                FontSize = 9,
+                Tag = row
+            };
+            addSeatBtn.Click += (_, _) =>
             {
-                Section.Rows.Remove(row);
+                row.Seats.Add(new Seat { Row = row.Name });
+                row.RenumberSeats();
                 Render();
                 LayoutChanged?.Invoke();
-            }
-        };
-        rowPanel.Children.Add(delRowBtn);
+            };
+            rowPanel.Children.Add(addSeatBtn);
+
+            var removeSeatBtn = new Button
+            {
+                Content = "-",
+                Width = 18,
+                Height = 18,
+                Margin = new Thickness(0, 0, 2, 0),
+                FontSize = 9
+            };
+            removeSeatBtn.Click += (_, _) =>
+            {
+                if (row.Seats.Count == 0) return;
+                var last = row.Seats[^1];
+                if (last.IsAssigned)
+                {
+                    var res = MessageBox.Show(
+                        $"Seat {last.Number} in {row.Name} has {last.GuestName} assigned. Remove it anyway?",
+                        "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (res != MessageBoxResult.Yes) return;
+                }
+                row.Seats.RemoveAt(row.Seats.Count - 1);
+                row.RenumberSeats();
+                Render();
+                LayoutChanged?.Invoke();
+            };
+            rowPanel.Children.Add(removeSeatBtn);
+
+            var delRowBtn = new Button
+            {
+                Content = "-Row",
+                Width = 34,
+                Height = 18,
+                Margin = new Thickness(0, 0, 8, 0),
+                FontSize = 9
+            };
+            delRowBtn.Click += (_, _) =>
+            {
+                int assignedCount = row.Seats.Count(s => s.IsAssigned);
+                string msg = assignedCount > 0
+                    ? $"Delete {row.Name}? It has {assignedCount} seated guest(s) - they'll be removed too."
+                    : $"Delete {row.Name}?";
+                var res = MessageBox.Show(msg, "Confirm Delete Row", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (res == MessageBoxResult.Yes)
+                {
+                    Section.Rows.Remove(row);
+                    Render();
+                    LayoutChanged?.Invoke();
+                }
+            };
+            rowPanel.Children.Add(delRowBtn);
+        }
 
         RenderSeatsWithGroupBorders(row, rowPanel);
 
@@ -271,13 +288,37 @@ public partial class SectionControl : UserControl
             Margin = new Thickness(1),
             FontSize = 10,
             FontWeight = FontWeights.Bold,
-            Background = SeatBrush(seat),
+            Background = SeatFillBrush(seat),
             Foreground = Brushes.White,
             ToolTip = seat.IsAssigned ? seat.GuestName : "(empty)",
             Tag = seat
         };
-        btn.Click += (_, _) => SeatClicked?.Invoke(seat, Section);
+        btn.Click += (_, _) => { if (!IsGuestView) SeatClicked?.Invoke(seat, Section); };
         return btn;
+    }
+
+    /// <summary>Fill color for a seat. "Available" isn't a status the user picks anymore - it's
+    /// just the default, and its color depends on whether someone's seated: red if empty, blue
+    /// if seated (same blue whether seated manually or by auto-seat). The other statuses
+    /// (Reserved/Maybe/Blind/Damaged) are exceptional seat conditions the user does pick, so they
+    /// keep their own fixed color regardless of whether a guest happens to be assigned to them.</summary>
+    private static Brush SeatFillBrush(Seat seat)
+    {
+        if (seat.Status == SeatStatus.Available)
+        {
+            return seat.IsAssigned
+                ? new SolidColorBrush(Color.FromRgb(0x29, 0x80, 0xB9))  // blue - seated
+                : new SolidColorBrush(Color.FromRgb(0xC0, 0x39, 0x2B)); // red - empty
+        }
+
+        return seat.Status switch
+        {
+            SeatStatus.Reserved => Brushes.DarkOrange,
+            SeatStatus.Maybe => new SolidColorBrush(Color.FromRgb(0x7F, 0x8C, 0x8D)),
+            SeatStatus.Blind => Brushes.Black,
+            SeatStatus.Damaged => new SolidColorBrush(Color.FromRgb(0x8E, 0x44, 0xAD)),
+            _ => Brushes.Gray
+        };
     }
 
     /// <summary>Seats sharing this key are considered one group and get a border drawn around
@@ -290,20 +331,6 @@ public partial class SectionControl : UserControl
         var name = seat.GuestName!;
         int idx = name.IndexOf(" (", StringComparison.Ordinal);
         return idx >= 0 ? name[..idx] : name;
-    }
-
-    private static Brush SeatBrush(Seat seat)
-    {
-        return seat.Status switch
-        {
-            SeatStatus.Available when seat.IsAssigned && seat.IsAutoSeated => Brushes.SteelBlue,   // auto-seated
-            SeatStatus.Available when seat.IsAssigned => Brushes.SeaGreen,                          // manually seated
-            SeatStatus.Available => new SolidColorBrush(Color.FromRgb(0xC0, 0x39, 0x2B)),           // red, empty
-            SeatStatus.Reserved => Brushes.DarkOrange,
-            SeatStatus.Maybe => new SolidColorBrush(Color.FromRgb(0x7F, 0x8C, 0x8D)),
-            SeatStatus.Blind => Brushes.Black,
-            _ => Brushes.Gray
-        };
     }
 
     private void AddRow_Click(object sender, RoutedEventArgs e)
@@ -368,6 +395,7 @@ public partial class SectionControl : UserControl
     // --- Dragging the section around the canvas ---
     private void HeaderBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (IsGuestView) return;
         _dragging = true;
         _dragStart = e.GetPosition(Parent as UIElement);
         CaptureMouse();

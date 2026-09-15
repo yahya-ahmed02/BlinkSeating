@@ -6,17 +6,47 @@
     <DockPanel>
         <Border DockPanel.Dock="Top" Background="#1F3B73" Padding="8">
             <StackPanel Orientation="Horizontal">
-                <Button Content="+ Add Section" Width="110" Margin="0,0,8,0" Click="AddSection_Click"/>
-                <Button Content="Save Layout" Width="100" Margin="0,0,8,0" Click="Save_Click"/>
-                <Button Content="Load Layout" Width="100" Margin="0,0,8,0" Click="Load_Click"/>
-                <Button Content="New Layout" Width="100" Margin="0,0,8,0" Click="New_Click"/>
-                <Button Content="Auto-Seat Zone" Width="120" Margin="20,0,8,0" Background="#F4C542" Click="AutoSeat_Click"/>
-                <Separator/>
+                <StackPanel x:Name="EditToolbar" Orientation="Horizontal">
+                    <Button Content="+ Add Section" Width="110" Margin="0,0,8,0" Click="AddSection_Click"/>
+                    <Button Content="Save Layout" Width="100" Margin="0,0,8,0" Click="Save_Click"/>
+                    <Button Content="Load Layout" Width="100" Margin="0,0,8,0" Click="Load_Click"/>
+                    <Button Content="New Layout" Width="100" Margin="0,0,8,0" Click="New_Click"/>
+                    <Button Content="Auto-Seat Zone" Width="120" Margin="20,0,8,0" Background="#F4C542" Click="AutoSeat_Click"/>
+                </StackPanel>
+                <Button x:Name="GuestViewButton" Content="Guest View" Width="100" Margin="20,0,8,0" Click="GuestView_Click"/>
             </StackPanel>
         </Border>
 
         <Border DockPanel.Dock="Bottom" Background="#EEEEEE" Padding="8">
-            <TextBlock x:Name="StatusText" Text="Available: 0   Assigned: 0   Reserved: 0   Maybe: 0   Blind: 0" FontWeight="Bold"/>
+            <StackPanel>
+                <WrapPanel Margin="0,0,0,6">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="#C0392B" Margin="0,0,4,0"/>
+                        <TextBlock Text="Available (empty)" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="#2980B9" Margin="0,0,4,0"/>
+                        <TextBlock Text="Seated" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="DarkOrange" Margin="0,0,4,0"/>
+                        <TextBlock Text="Reserved" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="#7F8C8D" Margin="0,0,4,0"/>
+                        <TextBlock Text="Maybe" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="Black" Margin="0,0,4,0"/>
+                        <TextBlock Text="Blind" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,14,4">
+                        <Border Width="14" Height="14" Background="#8E44AD" Margin="0,0,4,0"/>
+                        <TextBlock Text="Damaged" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock x:Name="StatusText" Text="Available: 0   Assigned: 0   Reserved: 0   Maybe: 0   Blind: 0   Damaged: 0" FontWeight="Bold"/>
+            </StackPanel>
         </Border>
 
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="White">

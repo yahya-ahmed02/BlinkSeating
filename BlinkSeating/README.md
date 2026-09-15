@@ -4,14 +4,14 @@ A WPF desktop app for designing a custom venue seating layout and assigning gues
 
 ## What it does right now (v0.1 — functional MVP)
 
-- Add sections anywhere on the canvas (drag by the blue header bar to reposition)
+- Add sections anywhere on the canvas (drag by the blue header bar to reposition) - creating one asks for a name plus how many rows and seats per row to start with, so it's not just one bare row you have to build up manually
 - Add rows to a section, add/remove seats at the end of a row (the "+" / "-" buttons next to each row)
 - Delete a whole row with "-Row" (asks for confirmation if it has seated guests)
-- Click any seat to open a dialog: assign a guest name, set status (Available / Reserved / Maybe / Blind), add notes, **Clear Seat** (unassign but keep the seat), or **Delete Seat** (remove the seat entirely)
+- Click any seat to open a dialog: assign a guest name, set status (Reserved / Maybe / Blind / Damaged, or "None" for a regular seat), add notes. **Save requires either a guest name or a special status** - it won't let you silently seat or leave a seat in a half-set state with neither. **Clear Seat** (unassign but keep the seat) or **Delete Seat** (remove the seat entirely) are separate, explicit actions
 - "Clear" on a section's header bulk-unseats everyone in that section without touching the seats/rows themselves
 - Each row can be dragged left or right independently (grab any empty space on the row, not just a button) within its section, so you can stagger rows to match a real venue shape
 - Seated groups (families placed by auto-seat, or manually-seated seats sharing an identical guest name) are drawn with a thin border around the whole block, so you can see family boundaries at a glance
-- Seats color-code automatically: red = empty, green = manually seated, steel blue = auto-seated, orange = reserved, gray = maybe, black = blind/damaged
+- **"Available" isn't something you pick** - it's just the default. An empty seat shows **red**; the moment it has a guest (manual or auto-seated, no difference) it turns **blue**. The other four statuses - Reserved (orange), Maybe (gray), Blind (black), Damaged (purple) - are exceptional conditions you do pick from the seat dialog, and they keep their own color even if a guest happens to be assigned to that seat. A legend for all of this sits at the bottom of the window at all times
 - Save the whole layout to a `.json` file, load it back later
 - Live counter bar at the bottom (total / assigned / available / reserved / maybe / blind)
 - Auto-Seat Zone: assigns families automatically per the rules described below
@@ -47,6 +47,8 @@ to sit in the exact same seat columns as the row above - it just takes the large
 in the next row with space. Visually "directly behind" in the strict column-aligned sense isn't
 enforced yet. Tell me if that matters for your actual layout and I'll tighten it.
 
+- **Guest View** toggle in the toolbar hides every editing control - the whole top toolbar except the toggle itself, plus each section's +Row/Clear/Rename/X and each row's +/-/-Row - and disables dragging and seat-editing clicks, leaving a clean read-only seating chart to show guests. Hovering a seat still shows the guest name tooltip. Click it again ("Exit Guest View") to get editing back
+
 ## What it does NOT do yet (be aware)
 
 - No curved/custom-shaped sections (yours are all rectangular boxes right now — matching the exact
@@ -75,7 +77,11 @@ dotnet run
 
 ## Build it as a single .exe
 
-This is the part you specifically asked for. Run this from inside the `BlinkSeating` folder:
+This is the part you specifically asked for. Easiest way: double-click **`build-exe.bat`**
+in this folder. It runs the publish command below for you and tells you exactly where the
+finished `.exe` ends up.
+
+If you'd rather run it yourself, from inside the `BlinkSeating` folder:
 
 ```
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true

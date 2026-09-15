@@ -4,8 +4,9 @@ public enum SeatStatus
 {
     Available,
     Reserved,
-    Blind,       // matches "Blind/Damaged" in the reference chart
-    Maybe
+    Blind,
+    Maybe,
+    Damaged // added after the others so it doesn't renumber - and break - anything already saved
 }
 
 public class Seat

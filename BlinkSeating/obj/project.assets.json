@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj",
+      "projectUniqueName": "E:\\BlinkSeating (7)\\BlinkSeating\\BlinkSeating.csproj",
       "projectName": "BlinkSeating",
-      "projectPath": "E:\\BlinkSeating (5)\\BlinkSeating\\BlinkSeating.csproj",
+      "projectPath": "E:\\BlinkSeating (7)\\BlinkSeating\\BlinkSeating.csproj",
       "packagesPath": "C:\\Users\\yahya\\.nuget\\packages\\",
-      "outputPath": "E:\\BlinkSeating (5)\\BlinkSeating\\obj\\",
+      "outputPath": "E:\\BlinkSeating (7)\\BlinkSeating\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\yahya\\AppData\\Roaming\\NuGet\\NuGet.Config"

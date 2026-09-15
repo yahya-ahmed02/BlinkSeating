@@ -22,7 +22,18 @@ public partial class SeatDialog : Window
 
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        _seat.GuestName = string.IsNullOrWhiteSpace(GuestNameBox.Text) ? null : GuestNameBox.Text.Trim();
+        bool hasName = !string.IsNullOrWhiteSpace(GuestNameBox.Text);
+        bool hasSpecialStatus = StatusBox.SelectedIndex > 0; // index 0 = "None (regular seat)"
+
+        if (!hasName && !hasSpecialStatus)
+        {
+            MessageBox.Show(
+                "Enter a guest name to seat this seat, or pick a status (Reserved/Blind/Maybe/Damaged) to flag it without a guest.\n\nTo leave it as a plain empty seat, use \"Clear Seat\" or \"Cancel\" instead of Save.",
+                "Name Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        _seat.GuestName = hasName ? GuestNameBox.Text.Trim() : null;
         _seat.Notes = string.IsNullOrWhiteSpace(NotesBox.Text) ? null : NotesBox.Text.Trim();
         _seat.Status = (SeatStatus)(StatusBox.SelectedIndex < 0 ? 0 : StatusBox.SelectedIndex);
         _seat.IsAutoSeated = false; // hand-edited seats are never touched by the auto-seat engine
